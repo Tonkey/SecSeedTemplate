@@ -47,8 +47,19 @@ public class UserFacade implements IUserFacade {
     @Override
     public IUser getUserByUserId(String id
     ) {
-        return users.get(id);
-    }
+        EntityManager em = emf.createEntityManager();
+        try{
+            
+            em.getTransaction().begin();
+            IUser user = em.find(User.class, id);
+            em.getTransaction().commit();
+
+            return user;
+        } catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    };
 
     /*
   Return the Roles if users could be authenticated, otherwise null
@@ -72,7 +83,7 @@ public class UserFacade implements IUserFacade {
             em.getTransaction().begin();
             em.persist(user);
             em.getTransaction().commit();
-
+            
         } catch (Exception e) {
             em.getTransaction().rollback();
             e.printStackTrace();
@@ -89,7 +100,7 @@ public class UserFacade implements IUserFacade {
             q.setParameter("name", name);
             em.getTransaction().commit();
 
-            User u = (User) q.getSingleResult();
+            User u = (User) q.getSingleResult();            
             return u;
         } catch (Exception e) {
             em.getTransaction().rollback();
