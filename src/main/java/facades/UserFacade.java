@@ -24,6 +24,7 @@ public class UserFacade implements IUserFacade {
     public UserFacade() {
         emf = Persistence.createEntityManagerFactory("lam_seedMaven_war_1.0-SNAPSHOTPU");
         try {
+            
             //Test Users
             User user = new User("user", PasswordStorage.createHash("test"));
             user.addRole("User");
@@ -49,11 +50,9 @@ public class UserFacade implements IUserFacade {
     ) {
         EntityManager em = emf.createEntityManager();
         try{
-            
             em.getTransaction().begin();
-            IUser user = em.find(User.class, id);
+            User user = em.find(User.class, id);
             em.getTransaction().commit();
-
             return user;
         } catch(Exception e){
             e.printStackTrace();
@@ -67,7 +66,7 @@ public class UserFacade implements IUserFacade {
     @Override
     public List<String> authenticateUser(String userName, String password
     ) {
-        IUser user = getUserByName(userName);
+        IUser user = getUserByUserId(userName);
         try {
             return user != null && PasswordStorage.verifyPassword(password, user.getPassword()) ? user.getRolesAsStrings() : null;
         } catch (Exception e) {
@@ -98,9 +97,11 @@ public class UserFacade implements IUserFacade {
             em.getTransaction().begin();
             Query q = em.createQuery("SELECT u FROM User u WHERE u.userName=:name", User.class);
             q.setParameter("name", name);
+            
             em.getTransaction().commit();
-
+        
             User u = (User) q.getSingleResult();            
+            System.out.println(u.getRolesAsStrings()    );
             return u;
         } catch (Exception e) {
             em.getTransaction().rollback();
